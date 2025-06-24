@@ -1,7 +1,6 @@
 from langchain_ollama import OllamaLLM
 import os
 
-print("👉 Using Ollama Base URL:", os.getenv("OLLAMA_BASE_URL"))
 
 llm = OllamaLLM(
     model="llama3.1:8b",
