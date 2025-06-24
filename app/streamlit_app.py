@@ -1,9 +1,6 @@
 from dotenv import load_dotenv
 load_dotenv()
-import logging
 
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger("travel_planner")
 
 import sys
 import os
