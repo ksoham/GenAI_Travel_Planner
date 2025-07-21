@@ -1,21 +1,40 @@
-from langchain_ollama import OllamaLLM
+# agents/itinerary_agent.py
+from langchain_community.llms import Ollama
 import os
 
-llm = OllamaLLM(
-    model="llama3.1:8b",
-    base_url=os.getenv("OLLAMA_BASE_URL")
-)
+def itinerary_node(logger=None):
+    ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    llm = Ollama(model="llama3.1:8b", base_url=ollama_url)
 
-def itinerary_node(state):
-    prompt = f"""
-You're a travel itinerary expert. Given this destination and preferences, create a detailed day-wise plan.
+    def node(state):
+        destination = state.get("destination", "").strip()
+        start_date = state.get("start_date", "").strip()
+        end_date = state.get("end_date", "").strip()
 
-Destination: {state['destination']}
-Dates: {state['start_date']} to {state['end_date']}
-Preferences: {state['preferences']}
-Include 3–5 activities per day and short descriptions.
+        if not destination or not start_date or not end_date:
+            if logger:
+                logger("⚠️ Itinerary Agent: Missing critical trip details. Skipping.")
+            return state
 
-Return the itinerary as markdown.
+        if logger:
+            logger("🗓️ Itinerary Agent: Creating day-wise itinerary...")
+
+        prompt = f"""
+You're a travel itinerary expert. Given the details below, generate a detailed, engaging day-wise travel plan.
+
+Destination: {destination}
+Dates: {start_date} to {end_date}
+Preferences: {state.get('preferences', 'None provided')}
+
+Include 3–5 activities per day with short descriptions.
+Format the response in **markdown** with headers for each day.
 """
-    result = llm.invoke(prompt)
-    return {**state, "final_plan": result.strip()}
+
+        result = llm.invoke(prompt)
+
+        if logger:
+            logger("✅ Itinerary Agent: Plan created.")
+
+        return {**state, "itinerary": result.strip()}
+
+    return node

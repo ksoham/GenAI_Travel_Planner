@@ -24,22 +24,27 @@ with st.sidebar:
     travel_type = st.selectbox("🎒 Type", ["relaxing", "adventure", "cultural", "romantic"])
     prefs = st.text_area("💭 Preferences", "beach, food")
 
-
+# -- Mermaid Visualization
+st.markdown("### 🧩 Multi-Agent Orchestration Flow")
+st.markdown("""
+```mermaid
+graph TD;
+    UserInput[User Input] --> MainPlanner(Main Planner)
+    MainPlanner --> DestinationAgent
+    DestinationAgent --> AccommodationAgent
+    AccommodationAgent --> FoodAgent
+    FoodAgent --> BudgetAgent
+    BudgetAgent --> ItineraryAgent
+    ItineraryAgent --> FeedbackAgent
+    FeedbackAgent --> FinalPlanAgent
+    FinalPlanAgent --> FinalOutput[Final Plan]
+""")
 # -- Initialize Session State
 if "last_plan" not in st.session_state:
     st.session_state.last_plan = ""
 if "state" not in st.session_state:
     st.session_state.state = {}
 # -- Generate Plan
-# -- Execution Log Setup (Global)
-st.markdown("#### 🛠️ Execution Log")
-log_area = st.empty()
-log_history = []
-
-def log(msg):
-    log_history.append(msg)
-    log_area.text("\n".join(log_history))
-
 if st.button("🧠 Generate Plan"):
     # Initialize state
     state = {
@@ -54,8 +59,7 @@ if st.button("🧠 Generate Plan"):
         "food": "",
         "budget_estimate": "",
         "final_plan": "",
-        "user_feedback": "",
-        "clothing_recommendation": ""
+        "user_feedback": ""
     }
     st.session_state.state = state
 
@@ -84,10 +88,6 @@ if st.button("🧠 Generate Plan"):
     st.markdown("### 🗺 Final Plan:")
     st.markdown(st.session_state.last_plan)
 
-    if "clothing_recommendation" in result and result["clothing_recommendation"]:
-        st.markdown("### 👗 Clothing Recommendations:")
-        st.markdown(result["clothing_recommendation"])
-
 # -- Feedback & Revision
 if st.session_state.last_plan:
     st.markdown("---")
@@ -103,10 +103,6 @@ if st.session_state.last_plan:
 
         st.markdown("### 🔄 Revised Plan:")
         st.markdown(st.session_state.last_plan)
-
-        if "clothing_recommendation" in revised_result and revised_result["clothing_recommendation"]:
-            st.markdown("### 👗 Updated Clothing Recommendations:")
-            st.markdown(revised_result["clothing_recommendation"])
 
 
 

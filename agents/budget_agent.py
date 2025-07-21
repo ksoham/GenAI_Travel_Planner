@@ -1,17 +1,27 @@
-from langchain_ollama import OllamaLLM
+
+# budget_agent.py
+from langchain_community.llms import Ollama
 import os
 
+def budget_node(logger=None):
+    ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    llm = Ollama(model="llama3.1:8b", base_url=ollama_url)
 
-llm = OllamaLLM(
-    model="llama3.1:8b",
-    base_url=os.getenv("OLLAMA_BASE_URL")
-)
+    def node(state):
+        if logger:
+            logger("💸 Budget Agent: Estimating total trip budget...")
+        prompt = f"""
+Estimate the total travel budget for a {state['budget_type']} trip from {state['origin']} to {state['destination']} from {state['start_date']} to {state['end_date']}. Include costs for:
 
-def budget_node(state):
-    prompt = f"""
-Estimate a total budget for a trip to {state['destination']} from {state['origin']} for a {state['budget_type']} traveler.
-Include travel, accommodation, food, and experiences.
-Return total estimate and short breakdown.
+- Travel
+- Accommodation
+- Food
+- Experiences
+Respond with a range (e.g. ₹40,000 – ₹60,000) and a brief breakdown.
 """
-    result = llm.invoke(prompt)
-    return {**state, "budget_estimate": result.strip()}
+        result = llm.invoke(prompt)
+        if logger:
+            logger("✅ Budget Agent: Estimate complete.")
+        return {**state, "budget_estimate": result.strip()}
+
+    return node

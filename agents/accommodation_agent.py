@@ -1,19 +1,21 @@
-from langchain_ollama import OllamaLLM
+# accommodation_agent.py
+from langchain_community.llms import Ollama
 import os
 
-print("👉 Using Ollama Base URL:", os.getenv("OLLAMA_BASE_URL"))
+def accommodation_node(logger=None):
+    ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    llm = Ollama(model="llama3.1:8b", base_url=ollama_url)
 
-llm = OllamaLLM(
-    model="llama3.1:8b",
-    base_url=os.getenv("OLLAMA_BASE_URL")
-)
-
-
-def accommodation_node(state):
-    prompt = f"""
-Find suitable accommodation options in {state['destination']} for a {state['budget_type']} traveler.
-Dates: {state['start_date']} to {state['end_date']}
-Return 2–3 suggestions with short descriptions.
+    def node(state):
+        if logger:
+            logger("🏨 Accommodation Agent: Fetching accommodation options...")
+        prompt = f"""
+Recommend accommodations in {state['destination']} for a {state['budget_type']} trip.
+List 2-3 hotels with approximate nightly prices.
 """
-    result = llm.invoke(prompt)
-    return {**state, "accommodation": result.strip()}
+        result = llm.invoke(prompt)
+        if logger:
+            logger("✅ Accommodation Agent: Recommendations complete.")
+        return {**state, "accommodation": result.strip()}
+
+    return node
