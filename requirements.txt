@@ -1,6 +1,21 @@
-langchain-community
-langchain
-langgraph
-streamlit
-ollama
-python-dotenv
+# Core LLM framework
+langchain==0.1.20
+langgraph==0.0.44
+
+# Ollama integration (latest supported external wrapper)
+langchain-community==0.0.34
+langchainhub==0.1.14
+langchain-ollama==0.1.0
+
+# Streamlit for UI
+streamlit==1.35.0
+
+# Pydantic (used by LangChain internals)
+pydantic==1.10.13
+
+# Requests for HTTP calls (optional but often needed)
+requests==2.31.0
+
+
+# Optional: for logging and debugging
+rich==13.7.1
